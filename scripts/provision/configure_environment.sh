@@ -31,11 +31,9 @@ sudo a2dissite 000-default
 
 # Setup PHP
 if [ ${use_php7} -eq 1 ]; then
-    sed -i "s|;include_path = \".:/usr/share/php\"|include_path = \".:/usr/share/php:${guest_magento_dir}/vendor/phpunit/phpunit\"|g" /etc/php/7.0/cli/php.ini
-    sed -i "s|display_errors = Off|display_errors = On|g" /etc/php/7.0/cli/php.ini
-    sed -i "s|display_startup_errors = Off|display_startup_errors = On|g" /etc/php/7.0/cli/php.ini
-    sed -i "s|error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT|error_reporting = E_ALL|g" /etc/php/7.0/cli/php.ini
+    php_ini_file="/etc/php/7.0/cli/php.ini"
 else
+    php_ini_file="/etc/php5/cli/php.ini"
     # Uninstall PHP 7 pre-installed in the box
     apt-get remove -y php*
 
@@ -54,6 +52,12 @@ else
     xdebug.remote_enable=1
     xdebug.remote_connect_back=1' >> /etc/php5/cli/conf.d/20-xdebug.ini
 fi
+
+sed -i "s|;include_path = \".:/usr/share/php\"|include_path = \".:/usr/share/php:${guest_magento_dir}/vendor/phpunit/phpunit\"|g" ${php_ini_file}
+sed -i "s|display_errors = Off|display_errors = On|g" ${php_ini_file}
+sed -i "s|display_startup_errors = Off|display_startup_errors = On|g" ${php_ini_file}
+sed -i "s|error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT|error_reporting = E_ALL|g" ${php_ini_file}
+
 service apache2 restart
 
 # Configure composer
